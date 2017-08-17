@@ -5,11 +5,16 @@ from astropy.coordinates import SkyCoord
 
 
 def get_coords():
-    c1 = SkyCoord(11.659, 25.445, frame='icrs', unit='deg')
-    c2 = SkyCoord(11.527, 24.975, frame='icrs', unit='deg') 
-    c3 = SkyCoord(13.981, 24.140, frame='icrs', unit='deg')
-    c4 = SkyCoord(14.121, 24.608, frame='icrs', unit='deg') 
-    return c1,c2,c3,c4
+    c1 = SkyCoord(157.035, -29.211, frame='icrs', unit='deg')
+    c2 = SkyCoord(156.551, -28.839, frame='icrs', unit='deg') 
+    c3 = SkyCoord(157.863, -26.870, frame='icrs', unit='deg')
+    c4 = SkyCoord(158.343, -27.238, frame='icrs', unit='deg')
+    c5 = SkyCoord(157.476, -29.111, frame='icrs', unit='deg')
+    c6 = SkyCoord(157.014, -28.758, frame='icrs', unit='deg')
+    c7 = SkyCoord(158.516, -26.503, frame='icrs', unit='deg')
+    c8 = SkyCoord(158.974, -26.850, frame='icrs', unit='deg')
+    c = [c1, c2, c3, c4, c5, c6, c7, c8]
+    return c
 
 
 def plot_rec(cs):
@@ -25,34 +30,34 @@ def fitline(x1, x2, y1, y2):
     return m, b
 
 
-def gen_left(c1,c2,c3,c4):
+def gen_left(c):
     # Starting points are the line from C1 to C2
     # + the line from C2 to C3
-    m, b = fitline(c1.ra, c2.ra, c1.dec, c2.dec)
-    x = np.linspace(c2.ra, c1.ra)
+    m, b = fitline(c[1].ra, c[2].ra, c[1].dec, c[2].dec)
+    x = np.linspace(c[2].ra, c[1].ra)
     y = m * x + b
     y1 = np.array(y)
     plt.plot(x, y1, lw=1, color='k')
 
-    m, b = fitline(c2.ra, c3.ra, c2.dec, c3.dec)
-    x = np.linspace(c2.ra, c3.ra)
+    m, b = fitline(c[1].ra, c[0].ra, c[1].dec, c[0].dec)
+    x = np.linspace(c[1].ra, c[0].ra)
     y = m * x + b
     y2 = np.array(y)
     plt.plot(x, y2, lw=1, color='k')
     return y1,y2
 
 
-def gen_right(c1,c2,c3,c4):
+def gen_right(c):
     # End points are the line from C1 to C4
     # + the line from C3 to C4
-    m, b = fitline(c1.ra, c4.ra, c1.dec, c4.dec)
-    x = np.linspace(c1.ra, c4.ra)
+    m, b = fitline(c[4].ra, c[7].ra, c[4].dec, c[7].dec)
+    x = np.linspace(c[4].ra, c[7].ra)
     y = m * x + b
     y = np.array(y)
     plt.plot(x, y, lw=1, color='k')
 
-    m, b = fitline(c3.ra, c4.ra, c3.dec, c4.dec)
-    x = np.linspace(c3.ra, c4.ra)
+    m, b = fitline(c[6].ra, c[7].ra, c[6].dec, c[7].dec)
+    x = np.linspace(c[6].ra, c[7].ra)
     y = m * x + b
     y = np.array(y)
     plt.plot(x, y, lw=1, color='k')
@@ -73,19 +78,10 @@ def plot_cal():
 
 
 def run():
-    c1 = SkyCoord(157.035, -29.211, frame='icrs', unit='deg')
-    c2 = SkyCoord(156.551, -28.839, frame='icrs', unit='deg') 
-    c3 = SkyCoord(157.863, -26.870, frame='icrs', unit='deg')
-    c4 = SkyCoord(158.343, -27.238, frame='icrs', unit='deg')
-    c5 = SkyCoord(157.476, -29.111, frame='icrs', unit='deg')
-    c6 = SkyCoord(157.014, -28.758, frame='icrs', unit='deg')
-    c7 = SkyCoord(158.516, -26.503, frame='icrs', unit='deg')
-    c8 = SkyCoord(158.974, -26.850, frame='icrs', unit='deg')
-    cs = [c1, c2, c3, c4, c5, c6, c7, c8]
-    plot_rec(cs)
-
-#     gen_left()
-#     gen_right()
+    c = get_coords()
+    plot_rec(c)
+    gen_left(c)
+    gen_right(c)
 # 
 #     plt.xlabel("RA (deg)")
 #     plt.ylabel("Dec (deg)")
