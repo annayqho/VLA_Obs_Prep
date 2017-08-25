@@ -10,6 +10,7 @@ import sys
 from astropy.utils.iers import conf
 conf.auto_max_age = None
 
+
 def get_moon(time, location, pressure=None):
     """
     Position of the Earth's moon.
@@ -76,15 +77,20 @@ def get_moon(time, location, pressure=None):
                     frame=AltAz(location=location, obstime=time))
 
 
-
 # observatories and offsets
-cerro_pachon = EarthLocation(lat=-30.240722*u.deg, lon=-70.736583*u.deg, height=2700.*u.m)
-palomar = EarthLocation(lat=33.3558*u.deg, lon=-116.8639*u.deg, height=1700.*u.m)
-mauna_kea = EarthLocation(lat=19.82636*u.deg, lon=-155.47501*u.deg, height=4145.*u.m)
-ovro = EarthLocation(lat=37.2339*u.deg, lon=-118.282*u.deg, height=1222.*u.m)
-vla = EarthLocation(lat=34.0784*u.deg, lon=-107.6184*u.deg, height=2124.*u.m)
+cerro_pachon = EarthLocation(
+        lat=-30.240722*u.deg, lon=-70.736583*u.deg, height=2700.*u.m)
+palomar = EarthLocation(
+        lat=33.3558*u.deg, lon=-116.8639*u.deg, height=1700.*u.m)
+mauna_kea = EarthLocation(
+        lat=19.82636*u.deg, lon=-155.47501*u.deg, height=4145.*u.m)
+ovro = EarthLocation(
+        lat=37.2339*u.deg, lon=-118.282*u.deg, height=1222.*u.m)
+vla = EarthLocation(
+        lat=34.0784*u.deg, lon=-107.6184*u.deg, height=2124.*u.m)
 
 observatory = {'cerro_pachon': cerro_pachon, 'palomar': palomar, 'mauna_kea': mauna_kea, 'ovro': ovro, 'vla': vla}
+# UTC is UK time except during the summer when the UK is an hour ahead
 utcoffset = {'cerro_pachon': -3.*u.hour, 'palomar': -8.*u.hour, 'mauna_kea': -10.*u.hour, 'ovro': -8.*u.hour, 'vla': -7.*u.hour}
 elevation_limit = 8.0*u.deg # degrees
 
@@ -102,15 +108,21 @@ sunaltazs = get_sun(times).transform_to(altazframe)
 srcaltazs = src.transform_to(altazframe)  
 
 # lst at ut date
-#print (time+utcoffset[obs]).sidereal_time('mean',observatory[obs].longitude.degree)
+print((time+utcoffset[obs]).sidereal_time('mean',observatory[obs].longitude.degree))
 
 srcaltazs.alt[srcaltazs.alt <= elevation_limit] = elevation_limit
-plt.scatter(deltas, srcaltazs.alt, c=np.log10(srcaltazs.secz), label='Source', lw=0, s=8) 
+plt.scatter(
+        deltas, srcaltazs.alt, c=np.log10(srcaltazs.secz), 
+        label='Source', lw=0, s=8) 
 plt.colorbar().set_label('log10 Airmass')  
 plt.plot(deltas, sunaltazs.alt, 'y-', label='Sun')  
 #plt.plot(deltas, moonaltazs.alt, 'g--', label='Moon')  
-plt.fill_between(deltas.to('hr').value, 0, 90, sunaltazs.alt < -0*u.deg, color='0.6', zorder=0)  
-plt.fill_between(deltas.to('hr').value, 0, 90, sunaltazs.alt < -18*u.deg, color='0.4', zorder=0)  
+plt.fill_between(
+        deltas.to('hr').value, 0, 90, 
+        sunaltazs.alt < -0*u.deg, color='0.6', zorder=0)  
+plt.fill_between(
+        deltas.to('hr').value, 0, 90, 
+        sunaltazs.alt < -18*u.deg, color='0.4', zorder=0)  
 
 plt.legend(loc='upper left')  
 plt.xlim(-12, 12)  
