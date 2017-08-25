@@ -2,7 +2,7 @@ import numpy as np
 import itertools
 import math
 import matplotlib.pyplot as plt
-from gen_otfm_grid import get_coords,gen_left,gen_right,plot_fluxcal,plot_cal
+from gen_otfm_grid import get_coords,gen_left,gen_right,plot_fluxcal,plot_cal,get_center
 from astropy.coordinates import SkyCoord
 
 
@@ -35,13 +35,17 @@ def gen_rect_mosaic(theta_row, theta_hex, length, height):
 
 
 def gen_heights(theta_row, height):
-    """ Generate the vertical starting points for each row of the mosaic """
-    return np.arange(0, height, theta_row)
+    """ Generate the vertical starting points for each row of the mosaic
+    Center it on 0, 0 """
+    dim = height/2
+    return np.arange(-dim, dim, theta_row)
 
 
 def gen_row(theta_hex, length):
-    """ Generate pointing centers for an individual row """
-    return np.arange(0, length+theta_hex, theta_hex) 
+    """ Generate pointing centers for an individual row 
+    Center it on 0, 0 """
+    dim = (length+theta_hex)/2
+    return np.arange(-dim, dim, theta_hex) 
 
 
 def rotate_mosaic(coords, theta):
@@ -59,15 +63,17 @@ def rotate_mosaic(coords, theta):
 
 if __name__=="__main__":
     # MAXI target coordinates
-    c1,c2,c3,c4 = get_coords()
-    gen_left(c1,c2,c3,c4)
-    gen_right(c1,c2,c3,c4)
-    top_left = np.array([c1.ra.value, c1.dec.value])
-    bottom_left = np.array([c2.ra.value, c2.dec.value])
-    bottom_right = np.array([c3.ra.value, c3.dec.value])
-    top_right = np.array([c4.ra.value, c4.dec.value])
-    plot_fluxcal()
-    plot_cal()
+    c = get_coords()
+    x_cen, y_cen = get_center(c)
+
+    gen_left(c, 0, 1, 1, 2)
+    gen_right(c, 2, 3, 3, 0)
+    top_left = np.array([c[1].ra.value, c[1].dec.value])
+    bottom_left = np.array([c[0].ra.value, c[0].dec.value])
+    bottom_right = np.array([c[3].ra.value, c[3].dec.value])
+    top_right = np.array([c[2].ra.value, c[2].dec.value])
+    #plot_fluxcal()
+    #plot_cal()
 
     # spacing between pointings in all rows
     theta_hex = 9.9 / 60 # degrees
@@ -76,8 +82,8 @@ if __name__=="__main__":
     theta_row = 8.57 / 60 # degrees
 
     # dimensions of mosaic
-    length = 2.38 # degrees
-    height = 0.49 # degrees
+    length = 2.2 # degrees
+    height = 0.45 # degrees
     coords = gen_rect_mosaic(theta_row, theta_hex, length, height)
 
     # put in the right order
@@ -92,8 +98,8 @@ if __name__=="__main__":
     rotated_coords = rotate_mosaic(coords,theta_rot)
 
     # translate
-    x = rotated_coords[:,0] + bottom_left[0]
-    y = rotated_coords[:,1] + bottom_left[1]
+    x = rotated_coords[:,0] + x_cen
+    y = rotated_coords[:,1] + y_cen
 
     # print scan file
     outputf = open("scanlist.txt", "w")
@@ -108,7 +114,7 @@ if __name__=="__main__":
 
     # plot
     plt.scatter(x, y, c='k')
+    plt.scatter(x_cen, y_cen, c='r')
     plt.xlabel("RA (deg)")
     plt.ylabel("Dec (deg)")
-    plt.show()
-
+    plt.savefig("pointing_centers.png")
